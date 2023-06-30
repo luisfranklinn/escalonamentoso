@@ -1,3 +1,3 @@
 Trabalho de Sistemas Operacionais
 =================
-Equipe: Davi, Fabio, Luis, Hony
+Equipe: Davi, Fabio, Luis, Hony.
