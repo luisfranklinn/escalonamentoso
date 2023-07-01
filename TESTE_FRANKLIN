@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_TASKS 100
+
+typedef struct {
+    int period;
+    int computation_time;
+    int deadline;
+} Task;
+
+void edf_schedule(Task tasks[], int num_tasks) {
+    int time = 0;
+    int i, j;
+    int* remaining_time = (int*) malloc(num_tasks * sizeof(int));
+
+    // Inicializa o tempo restante de execução de cada tarefa
+    for (i = 0; i < num_tasks; i++) {
+        remaining_time[i] = tasks[i].computation_time;
+    }
+
+    while (time < 100) { // Escala de tempo de execução de 0 a 100 (pode ser ajustada)
+        int earliest_deadline_task = -1;
+        int earliest_deadline = 101;
+
+        // Encontra a tarefa com o deadline mais próximo
+        for (i = 0; i < num_tasks; i++) {
+            if (remaining_time[i] > 0 && tasks[i].deadline < earliest_deadline) {
+                earliest_deadline = tasks[i].deadline;
+                earliest_deadline_task = i;
+            }
+        }
+
+        if (earliest_deadline_task == -1) {
+            printf("Tempo %d: Nenhuma tarefa ativa\n", time);
+        } else {
+            remaining_time[earliest_deadline_task]--;
+
+            if (remaining_time[earliest_deadline_task] == 0) {
+                printf("Tempo %d: Tarefa %d concluída\n", time, earliest_deadline_task);
+                remaining_time[earliest_deadline_task] = tasks[earliest_deadline_task].computation_time;
+            } else {
+                printf("Tempo %d: Tarefa %d em execução\n", time, earliest_deadline_task);
+            }
+        }
+
+        time++;
+    }
+
+    free(remaining_time);
+}
+
+int main() {
+    FILE *file;
+    char filename[50];
+    int num_tasks = 0;
+    Task tasks[MAX_TASKS];
+
+    printf("Digite o nome do arquivo de entrada: ");
+    scanf("%s", filename);
+
+    file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return 1;
+    }
+
+    // Lê as informações das tarefas do arquivo
+    while (!feof(file)) {
+        fscanf(file, "%d %d %d", &tasks[num_tasks].period, &tasks[num_tasks].computation_time, &tasks[num_tasks].deadline);
+        num_tasks++;
+    }
+
+    fclose(file);
+
+    printf("Tarefas do sistema:\n");
+    printf("P C D\n");
+    for (int i = 0; i < num_tasks; i++) {
+        printf("%d %d %d\n", tasks[i].period, tasks[i].computation_time, tasks[i].deadline);
+    }
+
+    edf_schedule(tasks, num_tasks);
+
+    return 0;
+}
