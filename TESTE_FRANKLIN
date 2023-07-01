@@ -66,7 +66,7 @@ int main() {
     }
 
     // Lê as informações das tarefas do arquivo
-    while (!feof(file)) {
+    while (!feof(file) && num_tasks < MAX_TASKS) {
         fscanf(file, "%d %d %d", &tasks[num_tasks].period, &tasks[num_tasks].computation_time, &tasks[num_tasks].deadline);
         num_tasks++;
     }
