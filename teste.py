@@ -14,16 +14,42 @@ class Task:
 
 
 def read_tasks(filename):
+    periods = []
+    computation_times = []
+    deadlines = []
     tasks = []
     with open(filename, 'r') as file:
+        lista = file.readlines()
+   
+    for i in range(1,len(lista)):
+        linha = lista[i].split()
+        periods.append(linha[0])
+        computation_times.append(linha[1])
+        deadlines.append(linha[2])
+        task = Task(linha[0], linha[1], linha[2])
+        tasks.append(task)
+    
+    print(periods)
+    print(computation_times)
+    print(deadlines)
+"""
+def read_tasks(filename):
+    tasks = []
+    for i in range(len(lista)):
+        linha = lista[i].split()
+    with open(filename, 'r') as file:
         lines = file.readlines()
+        lines = lines[1:].strip()
+        print(lines)
+        
         for line in lines:
-            if line.strip() != 'P C D':
-                period, computation_time, deadline = map(int, line.split())
-                task = Task(period, computation_time, deadline)
-                tasks.append(task)
+            #print(line[0])
+            #if line.strip() != 'P C D':  # Adicione esta verificação para ignorar a linha de cabeçalho
+            period, computation_time, deadline = map(int, line.split())
+            task = Task(period, computation_time, deadline)
+            tasks.append(task)
     return tasks
-
+"""
 
 def calculate_hyperperiod(tasks):
     periods = [task.period for task in tasks]
@@ -71,7 +97,7 @@ def simulate(tasks):
 
 
 def main():
-    filename = 'tasks.txt'  # Substitua pelo nome do arquivo com as tarefas
+    filename = r'C:\Users\lavf0\OneDrive\Área de Trabalho\escalonamentoso\testes\sistema1.txt'  # Substitua pelo nome do arquivo com as tarefas
     tasks = read_tasks(filename)
     tasks.sort(key=lambda x: x.deadline)
     if simulate(tasks):
