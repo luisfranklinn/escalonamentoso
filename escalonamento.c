@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-#define MAX_TASKS 10
+#include <stdbool.h>
 
 typedef struct
 {
@@ -10,40 +9,11 @@ typedef struct
     int deadline;
 } task_t;
 
-int read_tasks(task_t tasks[])
-{
-    FILE *file;
-    file = fopen("C:/Users/lavf0/OneDrive/Documentos/testes/sistema6extra.txt", "r");
-
-    if (file == NULL)
-    {
-        printf("Erro ao abrir o arquivo.\n");
-        exit(1);
-    }
-    char discard[100];
-    fgets(discard, sizeof(discard), file);
-
-    int num_tasks = 0;
-    while (fscanf(file, "%d %d %d", &tasks[num_tasks].period, &tasks[num_tasks].computation_time, &tasks[num_tasks].deadline) == 3)
-    {
-        num_tasks++;
-        if (num_tasks >= MAX_TASKS)
-        {
-            printf("Erro: número máximo de tarefas excedido.\n");
-            exit(1);
-        }
-    }
-
-    fclose(file);
-    return num_tasks;
-}
-
 int gcd(int a, int b)
 {
     if (b == 0)
         return a;
-    else
-        return gcd(b, a % b);
+    return gcd(b, a % b);
 }
 
 int lcm(int a, int b)
@@ -51,14 +21,39 @@ int lcm(int a, int b)
     return (a * b) / gcd(a, b);
 }
 
-int edf(task_t tasks[], int num_tasks)
+bool edf(task_t tasks[], int num_tasks)
 {
     int hyperperiod = tasks[0].period;
     for (int i = 1; i < num_tasks; i++)
         hyperperiod = lcm(hyperperiod, tasks[i].period);
 
-    int time = 0;
-    while (time < hyperperiod)
+    double utilization = 0.0;
+    for (int i = 0; i < num_tasks; i++)
+        utilization += (double)tasks[i].computation_time / tasks[i].period;
+
+    printf("Taxa de utilizacao igual a %.6f\n", utilization);
+
+    if (utilization > 1)
+    {
+        printf("O sistema nao eh escalonavel.\n");
+        return false;
+    }
+    else
+    {
+        printf("O sistema eh escalonavel.\n");
+    }
+
+    char timeline[num_tasks][hyperperiod];
+
+    for (int i = 0; i < num_tasks; i++)
+    {
+        for (int j = 0; j < hyperperiod; j++)
+        {
+            timeline[i][j] = '-';
+        }
+    }
+
+    for (int time = 0; time < hyperperiod; time++)
     {
         int earliest_deadline = hyperperiod;
         int selected_task = -1;
@@ -73,47 +68,47 @@ int edf(task_t tasks[], int num_tasks)
 
         if (selected_task != -1)
         {
-            time += tasks[selected_task].computation_time;
-        }
-        else
-        {
-            time++;
+            for (int k = 0; k < tasks[selected_task].computation_time; k++)
+            {
+                timeline[selected_task][time + k] = 'o';
+            }
+            time += tasks[selected_task].computation_time - 1;
         }
     }
-    printf("\n");
-
-    double utilization = 0.0;
-    for (int i = 0; i < num_tasks; i++)
-        utilization += (double)tasks[i].computation_time / tasks[i].period;
-
-    printf("Taxa de utilizacao igual a %.6f\n", utilization);
 
     for (int i = 0; i < num_tasks; i++)
     {
         for (int j = 0; j < hyperperiod; j++)
         {
-            if (j % tasks[i].period == 0)
-                printf("o ");
-            else
-                printf("- ");
+            printf("%c ", timeline[i][j]);
         }
         printf("\n");
     }
 
-    return utilization <= 1.0;
+    return true;
 }
 
 int main()
 {
-    task_t tasks[MAX_TASKS];
-    int num_tasks = read_tasks(tasks);
+    FILE *fp;
+    fp = fopen("C:/Users/honyc/OneDrive/Documentos/cod/sistema1.txt", "r");
+    if (fp == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+        exit(1);
+    }
 
-    int is_schedulable = edf(tasks, num_tasks);
+    task_t tasks[100];
+    int n = 0;
 
-    if (is_schedulable)
-        printf("O sistema e escalonavel.\n");
-    else
-        printf("O sistema nao e escalonavel.\n");
+    while (fscanf(fp, "%d %d %d", &tasks[n].period, &tasks[n].computation_time, &tasks[n].deadline) != EOF)
+    {
+        n++;
+    }
+
+    fclose(fp);
+
+    edf(tasks, n);
 
     return 0;
 }
