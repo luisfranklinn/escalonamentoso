@@ -13,7 +13,7 @@ typedef struct
 int read_tasks(task_t tasks[])
 {
     FILE *file;
-    file = fopen("C:/Users/lavf0/OneDrive/Documentos/testes/sistema6extra.txt", "r");
+    file = fopen("C:/Users/lavf0/OneDrive/Documentos/testes/sistema1.txt", "r");
 
     if (file == NULL)
     {
